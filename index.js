@@ -1,11 +1,15 @@
 // def words(text): return re.findall(r'\w+', text.lower())
+const fs = require('fs')
+
 const words = fs.readFileSync((__dirname + '/palavras.txt'), 'utf8').trim().toLowerCase().split('\n')
+const chars = 'abcdefghijklmnopqrstuvwxyz-]'
+const validChars = `/([^ ${chars}])+/g`
 const baseText = fs.readFileSync((__dirname + '/cortico.txt'), 'utf8').toLowerCase()
   .replace(/([\n])+/g, ' ')
   .replace(/( - )+/g, '')
-  .replace(/([^ abcdefghijklmnopqrstuvwxyzáâãàçéêíóôõ-])+/g, '')
+  .replace(new RegExp(validChars), '')
 
-const counter = baseText.split(' ').concat(words).reduce((counter, word) => {
+const dict = baseText.split(' ').concat(words).reduce((counter, word) => {
   if(!counter[word]) counter[word] = 1
   else counter[word]++
   return counter
@@ -14,39 +18,38 @@ const counter = baseText.split(' ').concat(words).reduce((counter, word) => {
 // def P(word, N=sum(WORDS.values())):
 //     "Probability of `word`."
 //     return WORDS[word] / N
+const probability = word => word ? dict[word] : 0
 
-const probability = word => counter[word]
-
-// const correction = (word) => {
-//   "Most probable spelling correction for word."
+// def correction(word): 
+//     "Most probable spelling correction for word."
 //     return max(candidates(word), key=P)
-// }
+const correction = word => 
+  candidates(word)
+    .reduce((bestCandidate, candidate) =>
+      probability(bestCandidate) >= probability(candidate)
+        ? bestCandidate
+        : candidate
+    , word)
 
-const correction = word => candidates(word).reduce((bestCandidate, candidate) =>
-  probability(bestCandidate) >= probability(candidate)
-    ? bestCandidate
-    : candidate
-)
-
-// const candidates = word => {
-//   "Generate possible spelling corrections for word."
-//   return (known([word]) or known(edits1(word)) or known(edits2(word)) or [word])
-// }
-
+// def candidates(word): 
+//     "Generate possible spelling corrections for word."
+//     return (known([word]) or known(edits1(word)) or known(edits2(word)) or [word])
 const candidates = word => {
-  // TODO
+  return known([word])
+    || known(edits1(word))
+    || known(edits2(word))
+    || []
 }
 
-// const known = words => {
+// def known(words): 
 //     "The subset of `words` that appear in the dictionary of WORDS."
 //     return set(w for w in words if w in WORDS)
-// }
-
-const edits = word => {
-
+const known = words => { 
+  const known = words.filter(w => dict[w])
+  return known.length > 0 ? known : null 
 }
 
-// const edits1 = word => {
+// def edits1(word):
 //     "All edits that are one edit away from `word`."
 //     letters    = 'abcdefghijklmnopqrstuvwxyz'
 //     splits     = [(word[:i], word[i:])    for i in range(len(word) + 1)]
@@ -55,10 +58,33 @@ const edits = word => {
 //     replaces   = [L + c + R[1:]           for L, R in splits if R for c in letters]
 //     inserts    = [L + c + R               for L, R in splits for c in letters]
 //     return set(deletes + transposes + replaces + inserts)
-// }
-//
-// const edits2 = word => {
-//   "All edits that are two edits away from `word`."
-//   return (e2 for e1 in edits1(word) for e2 in edits1(e1))
-// }
-//
+const edits1 = word => {
+  const edits = []
+  const splits = []
+
+  for(let i = 1; i <= word.length; i ++)
+    splits.push([word.substr(0, i), word.substr(i)])
+
+  splits.forEach(([L, R]) => {
+    if (R) {
+      edits.push(L + R.substr(1)) //deletes
+      chars.split('').forEach(c => edits.push(L + c + R.substr(1))) //replaces
+    }
+    if (R.length > 1) edits.push(L + R[1] + R[0] + R.substr(2)) //transposes
+    chars.split('').forEach(c => edits.push(L + c + R)) //inserts
+  })
+  return edits
+}
+
+// def edits2(word): 
+//     "All edits that are two edits away from `word`."
+//     return (e2 for e1 in edits1(word) for e2 in edits1(e1))
+const edits2 = word =>
+  edits1(word).map(edits1).reduce((flattenEdits, edits) => [...flattenEdits, ...edits], [])
+
+console.time('1 edit')
+console.log('batatus')
+console.timeEnd('1 edit')
+console.time('2 edit')
+console.log(correction('batatuss'))
+console.timeEnd('2 edit')
