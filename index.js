@@ -82,9 +82,9 @@ const edits1 = word => {
 const edits2 = word =>
   edits1(word).map(edits1).reduce((flattenEdits, edits) => [...flattenEdits, ...edits], [])
 
-console.time('1 edit')
-console.log('batatus')
-console.timeEnd('1 edit')
-console.time('2 edit')
-console.log(correction('batatuss'))
-console.timeEnd('2 edit')
+console.time('1 edits')
+console.log('batatus ->',correction('batatus'))
+console.timeEnd('1 edits')
+console.time('2 edits')
+console.log('batatuss ->',correction('batatuss'))
+console.timeEnd('2 edits')
