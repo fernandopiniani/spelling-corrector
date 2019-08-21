@@ -80,7 +80,7 @@ const edits1 = word => {
 //     "All edits that are two edits away from `word`."
 //     return (e2 for e1 in edits1(word) for e2 in edits1(e1))
 const edits2 = word =>
-  edits1(word).map(edits1).reduce((flattenEdits, edits) => [...flattenEdits, ...edits], [])
+  edits1(word).map(edits1).reduce((flattenEdits, edits) => flattenEdits.concat(edits), [])
 
 console.time('1 edits')
 console.log('batatus ->',correction('batatus'))
