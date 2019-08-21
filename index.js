@@ -2,7 +2,7 @@
 const fs = require('fs')
 
 const words = fs.readFileSync((__dirname + '/palavras.txt'), 'utf8').trim().toLowerCase().split('\n')
-const chars = 'abcdefghijklmnopqrstuvwxyz-]'
+const chars = 'abcdefghijklmnopqrstuvwxyzáâãàçéêíóôõ-'
 const validChars = `/([^ ${chars}])+/g`
 const baseText = fs.readFileSync((__dirname + '/cortico.txt'), 'utf8').toLowerCase()
   .replace(/([\n])+/g, ' ')
