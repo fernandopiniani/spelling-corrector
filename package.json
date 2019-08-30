@@ -1,0 +1,23 @@
+{
+  "name": "spelling-corrector",
+  "version": "1.0.0",
+  "description": "Spelling Corrector based on Peter Norvig's essay.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernandopiniani/spelling-corrector.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fernandopiniani/spelling-corrector/issues"
+  },
+  "homepage": "https://github.com/fernandopiniani/spelling-corrector#readme",
+  "dependencies": {
+    "node-cache": "^4.2.1",
+    "uuid": "^3.3.3"
+  }
+}

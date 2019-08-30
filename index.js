@@ -1,6 +1,7 @@
-// def words(text): return re.findall(r'\w+', text.lower())
 const fs = require('fs')
+const memoize = require('./memoize')
 
+// def words(text): return re.findall(r'\w+', text.lower())
 const words = fs.readFileSync((__dirname + '/palavras.txt'), 'utf8').trim().toLowerCase().split('\n')
 const chars = 'abcdefghijklmnopqrstuvwxyzáâãàçéêíóôõ-'
 const validChars = `/([^ ${chars}])+/g`
@@ -24,8 +25,7 @@ const probability = word => word ? dict[word] : 0
 //     "Most probable spelling correction for word."
 //     return max(candidates(word), key=P)
 const correction = word => 
-  candidates(word)
-    .reduce((bestCandidate, candidate) =>
+  candidates(word).reduce((bestCandidate, candidate) =>
       probability(bestCandidate) >= probability(candidate)
         ? bestCandidate
         : candidate
@@ -58,7 +58,7 @@ const known = words => {
 //     replaces   = [L + c + R[1:]           for L, R in splits if R for c in letters]
 //     inserts    = [L + c + R               for L, R in splits for c in letters]
 //     return set(deletes + transposes + replaces + inserts)
-const edits1 = word => {
+const edits1 = memoize(word => {
   const edits = []
   const splits = []
 
@@ -74,17 +74,20 @@ const edits1 = word => {
     chars.split('').forEach(c => edits.push(L + c + R)) //inserts
   })
   return edits
-}
+})
 
 // def edits2(word): 
 //     "All edits that are two edits away from `word`."
 //     return (e2 for e1 in edits1(word) for e2 in edits1(e1))
-const edits2 = word =>
+const edits2 = memoize(word =>
   edits1(word).map(edits1).reduce((flattenEdits, edits) => flattenEdits.concat(edits), [])
-
+)
 console.time('1 edits')
 console.log('batatus ->',correction('batatus'))
 console.timeEnd('1 edits')
 console.time('2 edits')
 console.log('batatuss ->',correction('batatuss'))
 console.timeEnd('2 edits')
+console.time('2 edits - cache')
+console.log('batatuss ->',correction('batatuss'))
+console.timeEnd('2 edits - cache')
