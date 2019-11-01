@@ -1,5 +1,5 @@
 # spelling-corrector (Javascript PT-BR version)
-Spelling Corrector based on Peter Norvig's essay.
+Spelling Corrector based on [Peter Norvig's essay](http://www.norvig.com/spell-correct.html).
 
 `node index.js`
 
